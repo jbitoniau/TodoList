@@ -8,6 +8,9 @@ var fs = require('fs');
 // var websocket = require('websocket'); // don't forget to run "npm install websocket"
 
 
+var MongoClient = require('mongodb').MongoClient;
+var MongoObjectID = require("mongodb").ObjectID;
+
 /*
     TodoListServer
 */
@@ -18,7 +21,7 @@ function TodoListServer() {
         var query = url.parse(req.url).query;
 
         if ( path==='/test') {
-            TodoListServer.forwardApiCall( 'kantree.io', '/api/1.0/projects/XXXXXX-zeproject/board', null, null, res );
+            TodoListServer.forwardApiCall( 'kantree.io', '/api/1.0/projects/18efe2bc-zeproject/board', null, null, res );
         } else if (path.indexOf('/') === 0) {
             var filename = path.substr(1);
             if (filename.length === 0) {
@@ -40,10 +43,12 @@ TodoListServer.forwardApiCall = function( host, path, query, auth, res )
     if ( query ) {
         fullPath = '?' + query;
     }
+    var username = '?????????????';
+    var passw = '?????????????';
     var options = {
         hostname: host,
         path: fullPath,
-        auth: auth
+        auth: new Buffer(username + ':' + passw).toString('base64')
     };
 
     var callback = function(response) 
@@ -150,6 +155,51 @@ TodoListServer._createHTMLErrorResponse = function(res, code, message) {
     Main
 */
 function Main() {
+
+    // Test MongoDB: https://zestedesavoir.com/tutoriels/312/debuter-avec-mongodb-pour-node-js/
+    MongoClient.connect("mongodb://localhost/TodoList", function(error, db) {
+        if (error) throw error;
+        console.log("Connected to db");
+
+        db.collection("tasks").find().toArray( function (error, results) {
+            if (error) throw error;
+            for ( var i=0; i<results.length; i++ ) {
+                var task = results[i];
+                console.log("task '" + task.name + "' ID:" + task._id );
+            }
+        });         
+
+        // Get one object by id
+        var idToFind = "5a1c13a42245f0dc2a9d72c4";      
+        var objToFind = { _id: new MongoObjectID(idToFind) }; 
+        db.collection("tasks").findOne(objToFind, function(error, result) {
+            if (error) throw error;
+            var task = result;
+            console.log("FOUND BY ID: task '" + task.name + "' ID:" + task._id );
+        });
+
+        // Insert doc
+        var objNew = { name: "BlaBloBli!" };  
+        db.collection("tasks").insert(objNew, null, function (error, result) {
+            if (error) throw error;
+            console.log("Added task " + JSON.stringify(result));  
+            
+            var idToRemove = result.insertedIds[0];
+
+            // Remove it after a while
+            setTimeout( function() {
+                    console.log("Removing..." + idToRemove);
+                    var objToRemove = { _id: new MongoObjectID(idToRemove) };
+                    db.collection("tasks").remove(objToRemove, null, function(error, result) {
+                        if (error) throw error;   
+                        console.log("REMOVED! " + JSON.stringify(result)); 
+                    });
+                }, 5000 );
+
+        });
+
+    });
+
     var todoListServer = new TodoListServer();
 
     //http://stackoverflow.com/questions/10021373/what-is-the-windows-equivalent-of-process-onsigint-in-node-js/14861513#14861513
