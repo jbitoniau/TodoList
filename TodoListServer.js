@@ -16,7 +16,10 @@ function TodoListServer() {
     this._httpServer = http.createServer(function(req, res) {
         var path = url.parse(req.url).pathname;
         var query = url.parse(req.url).query;
-        if (path.indexOf('/') === 0) {
+
+        if ( path==='/test') {
+            TodoListServer.forwardApiCall( 'kantree.io', '/api/1.0/projects/XXXXXX-zeproject/board', null, null, res );
+        } else if (path.indexOf('/') === 0) {
             var filename = path.substr(1);
             if (filename.length === 0) {
                 filename = 'TodoList.html';
@@ -30,6 +33,52 @@ function TodoListServer() {
         console.log('HTTP server listening');
     });
 }
+
+TodoListServer.forwardApiCall = function( host, path, query, auth, res )
+{
+    var fullPath = path;
+    if ( query ) {
+        fullPath = '?' + query;
+    }
+    var options = {
+        hostname: host,
+        path: fullPath,
+        auth: auth
+    };
+
+    var callback = function(response) 
+        {
+            console.log('statusCode:', response.statusCode);
+            console.log('headers:', response.headers);
+            var str = '';
+            response.on('data', function (chunk) 
+                {
+                    //console.log("data=" + chunk);
+                    str += chunk;
+                }); 
+
+            response.on('end', 
+                function() 
+                {
+                    console.log("END");
+                    res.writeHead(200, {"content-type": "application/json"});
+                    res.write(str);
+                    res.end();
+                });
+        };
+
+    var req = https.request(options, callback);
+
+    req.on('error', 
+        function(err) 
+        {
+            console.log("ERROR: " + err);
+            createHTMLErrorResponse( res, 500, err );
+        });
+
+    req.end();
+};
+
 
 TodoListServer.prototype.dispose = function() {
     // Stop things here!
@@ -60,7 +109,7 @@ TodoListServer._serveFile = function(filename, res) {
     var contentType = TodoListServer._getFileContentType(filename);
     if (!contentType) {
         console.warn('Serving file: ' + filename + '. Unsupported file/content type');
-        res.end();
+        TodoListServer._createHTMLErrorResponse(res, 500, 'Unsupported file/content type');
         return;
     }
     console.log('Serving file: ' + filename + ' as ' + contentType);
