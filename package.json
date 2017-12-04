@@ -1,0 +1,16 @@
+{
+    "name": "todolist",
+    "version": "1.0.0",
+    "license": "MIT",
+    "description": "A simple todo list application",
+    "repository" : { 
+    	"type" : "git", 
+    	"url" : "https://github.com/jbitoniau/TodoList"
+  	},
+    "main": "TodoListServer.js",
+
+    "dependencies": {
+        "express": "~4.16.2",
+        "mongoose": "~4.13.6"
+    }
+}

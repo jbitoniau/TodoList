@@ -7,9 +7,13 @@ var url = require('url');
 var fs = require('fs');
 // var websocket = require('websocket'); // don't forget to run "npm install websocket"
 
+var path = require('path');
 
 var MongoClient = require('mongodb').MongoClient;
 var MongoObjectID = require("mongodb").ObjectID;
+
+var express = require('express');
+var mongoose = require('mongoose');
 
 /*
     TodoListServer
@@ -151,10 +155,84 @@ TodoListServer._createHTMLErrorResponse = function(res, code, message) {
     res.end();
 };
 
+
 /*
     Main
 */
 function Main() {
+    console.log("Mongoose...");
+    mongoose.connect("mongodb://localhost/TodoList", { useMongoClient: true });
+    mongoose.Promise = global.Promise;
+
+    var Cat = mongoose.model('Cat', { name: String });
+    var kitty = new Cat({ name: 'Zildjian' });
+    kitty.save(function (err) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('meow');
+      }
+    });
+
+
+    console.log("Express...");
+    var app = express()
+
+    var myLogger = function (req, res, next) {
+      console.log('myLogger');
+      next()
+    }
+    app.use(myLogger);
+
+    app.get('/', function (req, res) {
+      //res.send('Hello World');
+      res.sendFile(path.join(__dirname + '/Client/TodoList.html'));
+    });
+
+    app.get('/api', function (req, res) {
+        var myObject = {
+            name:'toto',
+            id:12
+        };  
+        //res.sendFile(path.join(__dirname + '/Client/TodoList.html'));
+        res.json(myObject);
+    });
+
+    app.post('/api', function (req, res) {
+        // var myObject = {
+        //     name:'toto',
+        //     id:12
+        // };  
+        // //res.sendFile(path.join(__dirname + '/Client/TodoList.html'));
+        // res.json(myObject);
+
+        res.send('post on /api!');
+    });
+
+    app.get('/nested', function (req, res) {
+        var i = null;
+        i.toto();
+      res.send('Hello nested page')
+    })
+    app.use(  express.static('Client') );
+
+    app.use(function (err, req, res, next) {
+      console.error(err.stack)
+      res.status(500).send('Something broke!')
+    })
+
+    app.use(function (req, res, next) {
+      res.status(404).send("Sorry can't find that!")
+    })
+
+
+    app.listen(3000)
+};
+
+/*
+    Main
+*/
+function _OLD_Main() {
 
     // Test MongoDB: https://zestedesavoir.com/tutoriels/312/debuter-avec-mongodb-pour-node-js/
     MongoClient.connect("mongodb://localhost/TodoList", function(error, db) {
