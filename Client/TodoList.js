@@ -11,19 +11,53 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var TodoList = function (_React$Component) {
 	_inherits(TodoList, _React$Component);
 
-	function TodoList() {
+	function TodoList(props) {
 		_classCallCheck(this, TodoList);
 
-		return _possibleConstructorReturn(this, (TodoList.__proto__ || Object.getPrototypeOf(TodoList)).apply(this, arguments));
+		var _this = _possibleConstructorReturn(this, (TodoList.__proto__ || Object.getPrototypeOf(TodoList)).call(this, props));
+
+		_this.state = { date: new Date() };
+		return _this;
 	}
 
 	_createClass(TodoList, [{
-		key: 'render',
+		key: "componentWillMount",
+		value: function componentWillMount() {
+			console.log("componentWillMount");
+		}
+	}, {
+		key: "componentDidMount",
+		value: function componentDidMount() {
+			var _this2 = this;
+
+			//this.interval = setInterval( this.tick, 1000 );
+			this.interval = setInterval(function () {
+				return _this2.tick();
+			}, 1000);
+		}
+	}, {
+		key: "componentWillUnmount",
+		value: function componentWillUnmount() {
+			clearInterval(this.interval);
+		}
+	}, {
+		key: "componentWillReceiveProps",
+		value: function componentWillReceiveProps(nextProps) {
+			console.log("componentWillReceiveProps");
+		}
+	}, {
+		key: "tick",
+		value: function tick() {
+			this.setState({ date: new Date() });
+		}
+	}, {
+		key: "render",
 		value: function render() {
+			var text = "Hello " + this.state.date.toString();
 			return React.createElement(
-				'div',
+				"div",
 				null,
-				'Hello TodoList with React'
+				text
 			);
 		}
 	}]);

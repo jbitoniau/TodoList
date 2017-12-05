@@ -1,8 +1,38 @@
 'use strict';
 
 class TodoList extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = { date:new Date() };
+	}
+
+	componentWillMount() {
+		console.log("componentWillMount");
+	}
+
+	componentDidMount() {
+		//this.interval = setInterval( this.tick, 1000 );
+		 this.interval = setInterval(
+	      () => this.tick(),
+	      1000
+	    );
+	}
+
+	componentWillUnmount() {
+		clearInterval( this.interval );
+  	}
+
+  	componentWillReceiveProps(nextProps) {
+		console.log("componentWillReceiveProps");
+	}
+
+  	tick() {
+  		this.setState( { date:new Date() } );
+  	}
+
 	render() {
-		return <div>Hello TodoList with React</div>;
+		var text = "Hello " + this.state.date.toString();
+		return <div>{text}</div>;
 	}
 }
 
