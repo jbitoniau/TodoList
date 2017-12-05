@@ -8,7 +8,9 @@
     	"url" : "https://github.com/jbitoniau/TodoList"
   	},
     "main": "TodoListServer.js",
-
+    "scripts": {
+        "transpile": "babel -w Client/ -d Client -x .jsx"     
+    },
     "dependencies": {
         "express": "~4.16.2",
         "mongoose": "~4.13.6",
