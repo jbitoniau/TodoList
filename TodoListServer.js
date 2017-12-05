@@ -174,6 +174,41 @@ function Main() {
       }
     });
 
+    /// ---- 
+    var Schema = mongoose.Schema;
+
+    var Task = mongoose.model('Task', {
+        //id: Schema.Types.ObjectId,        // There's always a _id 
+        name: { type: String, trim: true, required:true },
+        completed: Boolean,
+        parentId: Schema.Types.ObjectId,
+    })
+
+    var testTask = new Task();
+    testTask.name = 'My first task';
+    // testTask.save( function(err) {
+    //  if (err) {
+    //     console.log(err);
+    //   } else {
+    //     console.log('task saved');
+    //     console.log( JSON.stringify(testTask) );
+    //   }
+    // });
+    testTask.save()
+        .then(function(doc){
+            console.log('task saved');
+            console.log( JSON.stringify(doc) );
+        })
+        .catch(function(err){
+              console.log(err);
+        });
+    //  if (err) {
+    //     console.log(err);
+    //   } else {
+    //     console.log('task saved');
+    //     console.log( JSON.stringify(testTask) );
+    //   }
+    // });
 
     console.log("Express...");
     var app = express()
