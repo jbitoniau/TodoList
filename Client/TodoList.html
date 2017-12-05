@@ -5,26 +5,21 @@
 	</head>
 
 	<style>
-		/*.roundedButton
-		{
-			background-color:white;
-			border:1px solid grey; 
-			border-radius:9999px;
-			user-select:none;
-			font-family:Arial, Helvetica, sans-serif;
-			font-size:11px;
-		}*/
 	</style>
 	
 	<body>
 		<div id="mainDiv">
-			<div>Hello</div>
+			...
 		</div>
 	</body>
 	<script src="/HttpRequest.js"></script>
+	<script src="/Lib/react/react.development.js"></script>
+	<script src="/Lib/react/react-dom.development.js"></script>
+	<script src="/TodoList.js"></script>
 	<script src="/Main.js"></script>
 	<script>
-		Main();
+		var mainDiv = document.getElementById('mainDiv');
+		Main(mainDiv);
 	</script>
 	
 </html>

@@ -1,5 +1,5 @@
 'use strict';
 
-function Main() {
-	console.log("Hello from Main...");
+function Main(domElement) {
+	ReactDOM.render(React.createElement(TodoList, null), domElement);
 }
