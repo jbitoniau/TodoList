@@ -61,22 +61,17 @@ var TodoList = function (_React$Component) {
 		value: function render() {
 			var text = 'Hello ' + this.state.date.toString();
 			var tasks = this.state.tasks.map(function (task, index) {
-				var onDeleteButtonClick = function onDeleteButtonClick(event) {
-					console.log('Delete task ' + task.name);
-					HttpRequest.request('/api/task/' + task._id, 'DELETE').then(function (response) {
-						//var tasks = JSON.parse(response);
-						//this.setState({ tasks: tasks });
-						console.log('>>> ' + response);
-						return Promise.resolve();
-					}.bind(this));
-				};
-				var onCompleteCheckboxChange = function onCompleteCheckboxChange(event) {
-					console.log('Toggle complete task ' + task.name);
-					HttpRequest.request('/api/task/' + task._id, 'PUT').then(function (response) {
-						console.log('>>> ' + response);
-						return Promise.resolve();
-					}.bind(this));
-				};
+				var onDeleteButtonClick = function (event) {
+					this.deleteTask(task._id);
+				}.bind(this);
+
+				var onCompleteCheckboxChange = function (event) {
+					var updatedTask = {};
+					Object.assign(updatedTask, task);
+					Object.assign(updatedTask, { complete: !task.complete });
+					this.updateTask(task._id, updatedTask);
+				}.bind(this);
+
 				return React.createElement(
 					'div',
 					{ key: index },
@@ -92,18 +87,10 @@ var TodoList = function (_React$Component) {
 					),
 					React.createElement('input', { type: 'button', onClick: onDeleteButtonClick, value: '-' })
 				);
-			});
+			}.bind(this));
 
 			var onAddTaskButtonClick = function (event) {
-				console.log('add task');
-				HttpRequest.request('/api/tasks/', 'POST').then(function (response) {
-					console.log('>>> ' + response);
-					var task = JSON.parse(response);
-					var tasks = this.state.tasks.slice();
-					tasks.push(task);
-					this.setState({ tasks: tasks });
-					return Promise.resolve();
-				}.bind(this));
+				this.addTask();
 			}.bind(this);
 			var addTaskButton = React.createElement('input', { type: 'button', onClick: onAddTaskButtonClick, value: '+' });
 
@@ -114,6 +101,56 @@ var TodoList = function (_React$Component) {
 				tasks,
 				addTaskButton
 			);
+		}
+	}, {
+		key: 'addTask',
+		value: function addTask() {
+			console.log('addTask');
+			var promise = HttpRequest.request('/api/tasks/', 'POST').then(function (response) {
+				var newTask = JSON.parse(response);
+				var updatedTasks = this.state.tasks.slice();
+				updatedTasks.push(newTask);
+				this.setState({ tasks: updatedTasks });
+				return Promise.resolve();
+			}.bind(this));
+			return promise;
+		}
+	}, {
+		key: 'updateTask',
+		value: function updateTask(id, updatedTask) {
+			console.log('updateTask ' + id);
+			var payload = JSON.stringify(updatedTask);
+			var headers = { 'Content-Type': 'application/json' };
+			var promise = HttpRequest.request('/api/task/' + id, 'PUT', payload, headers).then(function (response) {
+				var updatedTask = JSON.parse(response);
+				var updatedTasks = this.state.tasks.slice();
+				for (var i = 0; i < updatedTasks.length; i++) {
+					if (updatedTasks[i]._id === id) {
+						updatedTasks[i] = updatedTask;
+						break;
+					}
+				}
+				this.setState({ tasks: updatedTasks });
+				return Promise.resolve();
+			}.bind(this));
+			return promise;
+		}
+	}, {
+		key: 'deleteTask',
+		value: function deleteTask(id) {
+			console.log('deleteTask ' + id);
+			var promise = HttpRequest.request('/api/task/' + id, 'DELETE').then(function (response) {
+				var updatedTasks = this.state.tasks.slice();
+				for (var i = 0; i < updatedTasks.length; i++) {
+					if (updatedTasks[i]._id === id) {
+						updatedTasks.splice(i, 1);
+						break;
+					}
+				}
+				this.setState({ tasks: updatedTasks });
+				return Promise.resolve();
+			}.bind(this));
+			return promise;
 		}
 	}]);
 

@@ -1,34 +1,27 @@
 'use strict';
 
+var bodyParser = require('body-parser');
 var express = require('express');
 var path = require('path');
 var mongoose = require('mongoose');
 
 function TodoListServer() {
-    this._server = null;
-}
-
-TodoListServer.prototype.start = function() {
     mongoose.connect('mongodb://localhost/TodoList', { useMongoClient: true });
     mongoose.Promise = global.Promise;
 
-    var Task = mongoose.model('Task', {
+    this._Task = mongoose.model('Task', {
         name: String,
         complete: Boolean
     });
 
-    var testTask = new Task({ name: 'test task ' + Math.floor(Math.random() * 100), complete: false });
-    testTask
-        .save()
-        .then(function(doc) {
-            //  console.log( JSON.stringify(doc) );
-            return Promise.resolve();
-        })
-        .catch(function(err) {
-            console.log(err);
-        });
+    this._server = null;
+}
 
+TodoListServer.prototype.start = function() {
     var app = express();
+
+    app.use(bodyParser.json());
+    //app.use(bodyParser.urlencoded());
 
     app.get('/', function(req, res) {
         //res.send('Hello World');
@@ -41,30 +34,24 @@ TodoListServer.prototype.start = function() {
     // https://scotch.io/tutorials/build-a-restful-api-using-node-and-express-4
     app
         .route('/api/tasks')
-        .get(function(req, res) {
-            console.log('Getting all tasks...');
-            var query = Task.find({});
-            var promise = query.exec();
-            promise.then(function(tasks) {
-                console.log('Got all ' + tasks.length + ' tasks ');
-                res.json(tasks);
-                return Promise.resolve();
-            });
-        })
-        .post(function(req, res) {
-            console.log('Creating new task...');
-            var task = new Task({ name: 'New task ' + Math.floor(Math.random() * 100), complete: false });
-            task
-                .save()
-                .then(function(task) {
-                    res.json(task);
-                    console.log('Created task ' + task._id );
+        .get(
+            function(req, res) {
+                this.getAllTasks().then(function(tasks) {
+                    console.log('Got all ' + tasks.length + ' tasks ');
+                    res.json(tasks);
                     return Promise.resolve();
-                })
-                .catch(function(err) {
-                    console.log(err);
                 });
-        });
+            }.bind(this)
+        )
+        .post(
+            function(req, res) {
+                this.createTask().then(function(task) {
+                    console.log('Created task ' + task._id);
+                    res.json(task);
+                    return Promise.resolve();
+                });
+            }.bind(this)
+        );
 
     app
         .route('/api/task/:id')
@@ -72,14 +59,25 @@ TodoListServer.prototype.start = function() {
         //     console.log('Get the task'  + req.params.id);
         //     res.send('Get the task'  + req.params.id);
         // })
-        .put(function(req, res) {
-            console.log('Update the task' + req.params.id);
-            res.send('Update the task' + req.params.id);
-        })
-        .delete(function(req, res) {
-            console.log('Delete the task ' + req.params.id);
-            res.send('Delete the task ' + req.params.id);
-        });
+        .put(
+            function(req, res) {
+                //console.log('Updating task...' + req.params.id + ' body:' + JSON.stringify(req.body));
+                var updatedTask = req.body;
+                this.updateTask(req.params.id, updatedTask).then(function(task) {
+                    console.log('Updated task ' + task._id);
+                    res.json(task);
+                    return Promise.resolve();
+                });
+            }.bind(this)
+        )
+        .delete(
+            function(req, res) {
+                this.deleteTask(req.params.id).then(function() {
+                    console.log('Deleted task ' + req.params.id);
+                    res.end();
+                });
+            }.bind(this)
+        );
 
     app.use(function(err, req, res, next) {
         console.error(err.stack);
@@ -96,6 +94,34 @@ TodoListServer.prototype.start = function() {
 TodoListServer.prototype.stop = function() {
     console.log('Stopping server...');
     this._server.close();
+};
+
+// Successful promise resolves in an array of tasks
+TodoListServer.prototype.getAllTasks = function() {
+    var query = this._Task.find({});
+    var promise = query.exec();
+    return promise;
+};
+
+TodoListServer.prototype.createTask = function() {
+    var task = new this._Task({ name: 'New task ' + Math.floor(Math.random() * 100), complete: false });
+    var promise = task.save();
+    return promise;
+};
+
+TodoListServer.prototype.updateTask = function(taskId, updatedTask) {
+    var query = this._Task.findById(taskId);
+    var promise = query.exec();
+    promise.then(function(task) {
+        Object.assign(task, updatedTask);
+        return task.save();
+    });
+    return promise;
+};
+
+TodoListServer.prototype.deleteTask = function(taskId) {
+    var promise = this._Task.remove({ _id: taskId });
+    return promise;
 };
 
 function Main() {
