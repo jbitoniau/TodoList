@@ -41,41 +41,48 @@ class TodoList extends React.Component {
 			var onDeleteButtonClick = function(event) {
 				console.log('Delete task ' + task.name);
 				HttpRequest.request('/api/task/' + task._id, 'DELETE').then(
-				function(response) {
-					//var tasks = JSON.parse(response);
-					//this.setState({ tasks: tasks });
-					console.log(">>> " + response);
-					return Promise.resolve();
-				}.bind(this)
-			);
-
+					function(response) {
+						//var tasks = JSON.parse(response);
+						//this.setState({ tasks: tasks });
+						console.log('>>> ' + response);
+						return Promise.resolve();
+					}.bind(this)
+				);
 			};
 			var onCompleteCheckboxChange = function(event) {
 				console.log('Toggle complete task ' + task.name);
-				HttpRequest.request('/api/task/'+ task._id, 'PUT').then(
-				function(response) {
-					console.log(">>> " + response);
-					return Promise.resolve();
-				}.bind(this));
+				HttpRequest.request('/api/task/' + task._id, 'PUT').then(
+					function(response) {
+						console.log('>>> ' + response);
+						return Promise.resolve();
+					}.bind(this)
+				);
 			};
 			return (
 				<div key={index}>
 					<input type="checkbox" checked={task.complete} onChange={onCompleteCheckboxChange} />
-					<span style={{textDecoration: task.complete?'line-through':null}}>{index} - {task.name}</span>
+					<span style={{ textDecoration: task.complete ? 'line-through' : null }}>
+						{index} - {task.name} - {task._id}
+					</span>
 					<input type="button" onClick={onDeleteButtonClick} value="-" />
 				</div>
 			);
 		});
 
 		var onAddTaskButtonClick = function(event) {
-			console.log("add task");
+			console.log('add task');
 			HttpRequest.request('/api/tasks/', 'POST').then(
 				function(response) {
-					console.log(">>> " + response);
+					console.log('>>> ' + response);
+					var task = JSON.parse(response);
+					var tasks = this.state.tasks.slice();
+					tasks.push(task);
+					this.setState({ tasks: tasks });
 					return Promise.resolve();
-				}.bind(this));
-		}
-		var addTaskButton = <input type="button" onClick={onAddTaskButtonClick} value="+" />
+				}.bind(this)
+			);
+		}.bind(this);
+		var addTaskButton = <input type="button" onClick={onAddTaskButtonClick} value="+" />;
 
 		return (
 			<div>

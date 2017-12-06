@@ -17,7 +17,7 @@ TodoListServer.prototype.start = function() {
         complete: Boolean
     });
 
-    var testTask = new Task({ name: 'test task ' + Math.floor(Math.random()*100), complete: false });
+    var testTask = new Task({ name: 'test task ' + Math.floor(Math.random() * 100), complete: false });
     testTask
         .save()
         .then(function(doc) {
@@ -42,18 +42,28 @@ TodoListServer.prototype.start = function() {
     app
         .route('/api/tasks')
         .get(function(req, res) {
-            console.log('Get all tasks...');
-            //res.send('Get all tasks...');
+            console.log('Getting all tasks...');
             var query = Task.find({});
             var promise = query.exec();
             promise.then(function(tasks) {
+                console.log('Got all ' + tasks.length + ' tasks ');
                 res.json(tasks);
                 return Promise.resolve();
             });
         })
         .post(function(req, res) {
-            console.log('Create a task');
-            res.send('Create a task');
+            console.log('Creating new task...');
+            var task = new Task({ name: 'New task ' + Math.floor(Math.random() * 100), complete: false });
+            task
+                .save()
+                .then(function(task) {
+                    res.json(task);
+                    console.log('Created task ' + task._id );
+                    return Promise.resolve();
+                })
+                .catch(function(err) {
+                    console.log(err);
+                });
         });
 
     app
@@ -63,8 +73,8 @@ TodoListServer.prototype.start = function() {
         //     res.send('Get the task'  + req.params.id);
         // })
         .put(function(req, res) {
-            console.log('Update the task'  + req.params.id);
-            res.send('Update the task'  + req.params.id);
+            console.log('Update the task' + req.params.id);
+            res.send('Update the task' + req.params.id);
         })
         .delete(function(req, res) {
             console.log('Delete the task ' + req.params.id);
