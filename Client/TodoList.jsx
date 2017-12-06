@@ -37,39 +37,94 @@ class TodoList extends React.Component {
 
 	render() {
 		var text = 'Hello ' + this.state.date.toString();
-		var tasks = this.state.tasks.map(function(task, index) {
-			var onDeleteButtonClick = function(event) {
-				this.deleteTask( task._id );
-			}.bind(this);
+		var tasks = this.state.tasks.map(
+			function(task, index) {
+				var onDeleteButtonClick = function(event) {
+					this.deleteTask(task._id);
+				}.bind(this);
 
-			var onCompleteCheckboxChange = function(event) {
-				var updatedTask = {};
-				Object.assign(updatedTask, task);
-				Object.assign(updatedTask, {complete:!task.complete});
-				this.updateTask( task._id, updatedTask );
-			}.bind(this);
+				var onCompleteCheckboxChange = function(event) {
+					var updatedTask = {};
+					Object.assign(updatedTask, task);
+					Object.assign(updatedTask, { complete: !task.complete });
+					this.updateTask(task._id, updatedTask);
+				}.bind(this);
 
-			return (
-				<div key={index}>
-					<input type="checkbox" checked={task.complete} onChange={onCompleteCheckboxChange} />
-					<span style={{ textDecoration: task.complete ? 'line-through' : null }}>
-						{index} - {task.name} - {task._id}
-					</span>
-					<input type="button" onClick={onDeleteButtonClick} value="-" />
-				</div>
-			);
-		}.bind(this));
+				return (
+					<div key={index}>
+						<input type="checkbox" checked={task.complete} onChange={onCompleteCheckboxChange} />
+						<span style={{ textDecoration: task.complete ? 'line-through' : null }}>
+							{index} - {task.name} - {task._id}
+						</span>
+						<input type="button" onClick={onDeleteButtonClick} value="-" />
+					</div>
+				);
+			}.bind(this)
+		);
 
 		var onAddTaskButtonClick = function(event) {
 			this.addTask();
 		}.bind(this);
 		var addTaskButton = <input type="button" onClick={onAddTaskButtonClick} value="+" />;
 
+		var node = {
+			id: 1,
+			name: 'mainOne',
+			checked: false,
+			children: [
+				{
+					id: 2,
+					name: 'a sub one',
+					checked: false
+				},
+				{
+					id: 12,
+					name: 'a sub with children',
+					checked: false,
+					children: [
+						{
+							id: 121,
+							name: 'bla',
+							checked: false
+						},
+						{
+							id: 122,
+							name: 'blibli (no drop on top)',
+							checked: true
+						},
+						{
+							id: 123,
+							name: 'blooooo',
+							checked: false
+						}
+					]
+				},
+				{
+					id: 3,
+					name: 'another sub',
+					checked: true
+				}
+			]
+		};
+
 		return (
 			<div>
 				{text}
 				{tasks}
 				{addTaskButton}
+
+				<br />
+				<div>
+					<b>TREE VIEW</b>
+				</div>
+				<UITreeView
+					style={{
+						fontFamily: 'Open Sans, sans-serif',
+						fontSize: 14,
+						fontWeight: 'normal'
+					}}
+					node={node}
+				/>
 			</div>
 		);
 	}
@@ -88,35 +143,17 @@ class TodoList extends React.Component {
 		return promise;
 	}
 
-	updateTask( id, updatedTask ) {
+	updateTask(id, updatedTask) {
 		console.log('updateTask ' + id);
 		var payload = JSON.stringify(updatedTask);
-		var headers = { 'Content-Type':'application/json' };
+		var headers = { 'Content-Type': 'application/json' };
 		var promise = HttpRequest.request('/api/task/' + id, 'PUT', payload, headers).then(
 			function(response) {
 				var updatedTask = JSON.parse(response);
 				var updatedTasks = this.state.tasks.slice();
-				for ( var i=0; i<updatedTasks.length; i++ ) {
-					if ( updatedTasks[i]._id===id ) {
+				for (var i = 0; i < updatedTasks.length; i++) {
+					if (updatedTasks[i]._id === id) {
 						updatedTasks[i] = updatedTask;
-						break;
-					}
-				}
-				this.setState({ tasks: updatedTasks });
-				return Promise.resolve();
-			}.bind(this)
-		);		
-		return promise;
-	}
-
-	deleteTask(id) {
-		console.log('deleteTask ' + id);
-		var promise = HttpRequest.request('/api/task/' + id, 'DELETE').then(
-			function(response) {
-				var updatedTasks = this.state.tasks.slice();
-				for ( var i=0; i<updatedTasks.length; i++ ) {
-					if ( updatedTasks[i]._id===id ) {
-						updatedTasks.splice(i, 1);
 						break;
 					}
 				}
@@ -127,6 +164,23 @@ class TodoList extends React.Component {
 		return promise;
 	}
 
+	deleteTask(id) {
+		console.log('deleteTask ' + id);
+		var promise = HttpRequest.request('/api/task/' + id, 'DELETE').then(
+			function(response) {
+				var updatedTasks = this.state.tasks.slice();
+				for (var i = 0; i < updatedTasks.length; i++) {
+					if (updatedTasks[i]._id === id) {
+						updatedTasks.splice(i, 1);
+						break;
+					}
+				}
+				this.setState({ tasks: updatedTasks });
+				return Promise.resolve();
+			}.bind(this)
+		);
+		return promise;
+	}
 }
 
 // testing class transpiling...

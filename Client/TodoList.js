@@ -94,12 +94,62 @@ var TodoList = function (_React$Component) {
 			}.bind(this);
 			var addTaskButton = React.createElement('input', { type: 'button', onClick: onAddTaskButtonClick, value: '+' });
 
+			var node = {
+				id: 1,
+				name: 'mainOne',
+				checked: false,
+				children: [{
+					id: 2,
+					name: 'a sub one',
+					checked: false
+				}, {
+					id: 12,
+					name: 'a sub with children',
+					checked: false,
+					children: [{
+						id: 121,
+						name: 'bla',
+						checked: false
+					}, {
+						id: 122,
+						name: 'blibli (no drop on top)',
+						checked: true
+					}, {
+						id: 123,
+						name: 'blooooo',
+						checked: false
+					}]
+				}, {
+					id: 3,
+					name: 'another sub',
+					checked: true
+				}]
+			};
+
 			return React.createElement(
 				'div',
 				null,
 				text,
 				tasks,
-				addTaskButton
+				addTaskButton,
+				React.createElement('br', null),
+				React.createElement(
+					'div',
+					null,
+					React.createElement(
+						'b',
+						null,
+						'TREE VIEW'
+					)
+				),
+				React.createElement(UITreeView, {
+					style: {
+						fontFamily: 'Open Sans, sans-serif',
+						fontSize: 14,
+						fontWeight: 'normal'
+					},
+					node: node
+				})
 			);
 		}
 	}, {
