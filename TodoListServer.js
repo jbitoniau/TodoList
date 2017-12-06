@@ -2,13 +2,32 @@
 
 var express = require('express');
 var path = require('path');
-// var mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
 function TodoListServer() {
     this._server = null;
 }
 
 TodoListServer.prototype.start = function() {
+    mongoose.connect('mongodb://localhost/TodoList', { useMongoClient: true });
+    mongoose.Promise = global.Promise;
+
+    var Task = mongoose.model('Task', {
+        name: String,
+        complete: Boolean
+    });
+
+    var testTask = new Task({ name: 'test task ' + Math.floor(Math.random()*100), complete: false });
+    testTask
+        .save()
+        .then(function(doc) {
+            //  console.log( JSON.stringify(doc) );
+            return Promise.resolve();
+        })
+        .catch(function(err) {
+            console.log(err);
+        });
+
     var app = express();
 
     app.get('/', function(req, res) {
@@ -32,17 +51,29 @@ TodoListServer.prototype.start = function() {
         });
 
     app.get('/api/tasks', function(req, res) {
-        var tasks = [
+        var query = Task.find(
+            {},
+            null,
             {
-                name: 'first task',
-                complete: false
-            },
-            {
-                name: 'second task',
-                complete: true
+                /*skip: 10*/
             }
-        ];
-        res.json(tasks);
+        );
+        var promise = query.exec();
+        promise.then(function(docs) {
+            res.json(docs);
+            return Promise.resolve();
+        });
+        // var tasks = [
+        //     {
+        //         name: 'first task',
+        //         complete: false
+        //     },
+        //     {
+        //         name: 'second task',
+        //         complete: true
+        //     }
+        // ];
+        // res.json(tasks);
     });
 
     app.use(function(err, req, res, next) {
