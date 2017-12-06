@@ -60,19 +60,38 @@ var TodoList = function (_React$Component) {
 		value: function render() {
 			var text = 'Hello ' + this.state.date.toString();
 			var tasks = this.state.tasks.map(function (task, index) {
+				var onDeleteButtonClick = function onDeleteButtonClick(event) {
+					console.log('Delete task ' + task.name);
+				};
+				var onCompleteCheckboxChange = function onCompleteCheckboxChange(event) {
+					console.log('Toggle complete task ' + task.name);
+				};
 				return React.createElement(
 					'div',
 					{ key: index },
-					index,
-					' - ',
-					task.name
+					React.createElement('input', { type: 'checkbox', checked: task.complete, onChange: onCompleteCheckboxChange }),
+					React.createElement(
+						'span',
+						{ style: { textDecoration: task.complete ? 'line-through' : null } },
+						index,
+						' - ',
+						task.name
+					),
+					React.createElement('input', { type: 'button', onClick: onDeleteButtonClick, value: '-' })
 				);
 			});
+
+			var onAddTaskButtonClick = function onAddTaskButtonClick(event) {
+				console.log("add task");
+			};
+			var addTaskButton = React.createElement('input', { type: 'button', onClick: onAddTaskButtonClick, value: '+' });
+
 			return React.createElement(
 				'div',
 				null,
 				text,
-				tasks
+				tasks,
+				addTaskButton
 			);
 		}
 	}]);

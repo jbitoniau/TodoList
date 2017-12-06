@@ -34,10 +34,12 @@ TodoListServer.prototype.start = function() {
     app.get('/api/tasks', function(req, res) {
         var tasks = [
             {
-                name: 'first task'
+                name: 'first task',
+                complete: false
             },
             {
-                name: 'second task'
+                name: 'second task',
+                complete: true
             }
         ];
         res.json(tasks);

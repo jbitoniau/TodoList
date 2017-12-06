@@ -36,13 +36,34 @@ class TodoList extends React.Component {
 
 	render() {
 		var text = 'Hello ' + this.state.date.toString();
-		var tasks = this.state.tasks.map( function(task, index) {
-			return <div key={index}>{index} - {task.name}</div>
+		var tasks = this.state.tasks.map(function(task, index) {
+			var onDeleteButtonClick = function(event) {
+				console.log('Delete task ' + task.name);
+			};
+			var onCompleteCheckboxChange = function(event) {
+				console.log('Toggle complete task ' + task.name);
+			};
+			return (
+				<div key={index}>
+					<input type="checkbox" checked={task.complete} onChange={onCompleteCheckboxChange} />
+					<span style={{textDecoration: task.complete?'line-through':null}}>{index} - {task.name}</span>
+					<input type="button" onClick={onDeleteButtonClick} value="-" />
+				</div>
+			);
 		});
-		return <div>
-			{text}
-			{tasks}
-		</div>;
+
+		var onAddTaskButtonClick = function(event) {
+			console.log("add task");
+		}
+		var addTaskButton = <input type="button" onClick={onAddTaskButtonClick} value="+" />
+
+		return (
+			<div>
+				{text}
+				{tasks}
+				{addTaskButton}
+			</div>
+		);
 	}
 }
 
