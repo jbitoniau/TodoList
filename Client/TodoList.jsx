@@ -9,6 +9,7 @@ class TodoList extends React.Component {
 			function(response) {
 				var tasks = JSON.parse(response);
 				this.setState({ tasks: tasks });
+				return Promise.resolve();
 			}.bind(this)
 		);
 	}
@@ -39,9 +40,23 @@ class TodoList extends React.Component {
 		var tasks = this.state.tasks.map(function(task, index) {
 			var onDeleteButtonClick = function(event) {
 				console.log('Delete task ' + task.name);
+				HttpRequest.request('/api/task/' + task._id, 'DELETE').then(
+				function(response) {
+					//var tasks = JSON.parse(response);
+					//this.setState({ tasks: tasks });
+					console.log(">>> " + response);
+					return Promise.resolve();
+				}.bind(this)
+			);
+
 			};
 			var onCompleteCheckboxChange = function(event) {
 				console.log('Toggle complete task ' + task.name);
+				HttpRequest.request('/api/task/'+ task._id, 'PUT').then(
+				function(response) {
+					console.log(">>> " + response);
+					return Promise.resolve();
+				}.bind(this));
 			};
 			return (
 				<div key={index}>
@@ -54,6 +69,11 @@ class TodoList extends React.Component {
 
 		var onAddTaskButtonClick = function(event) {
 			console.log("add task");
+			HttpRequest.request('/api/tasks/', 'POST').then(
+				function(response) {
+					console.log(">>> " + response);
+					return Promise.resolve();
+				}.bind(this));
 		}
 		var addTaskButton = <input type="button" onClick={onAddTaskButtonClick} value="+" />
 

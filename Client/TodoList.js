@@ -21,6 +21,7 @@ var TodoList = function (_React$Component) {
 		HttpRequest.request('/api/tasks', 'GET').then(function (response) {
 			var tasks = JSON.parse(response);
 			this.setState({ tasks: tasks });
+			return Promise.resolve();
 		}.bind(_this));
 		return _this;
 	}
@@ -62,9 +63,19 @@ var TodoList = function (_React$Component) {
 			var tasks = this.state.tasks.map(function (task, index) {
 				var onDeleteButtonClick = function onDeleteButtonClick(event) {
 					console.log('Delete task ' + task.name);
+					HttpRequest.request('/api/task/' + task._id, 'DELETE').then(function (response) {
+						//var tasks = JSON.parse(response);
+						//this.setState({ tasks: tasks });
+						console.log(">>> " + response);
+						return Promise.resolve();
+					}.bind(this));
 				};
 				var onCompleteCheckboxChange = function onCompleteCheckboxChange(event) {
 					console.log('Toggle complete task ' + task.name);
+					HttpRequest.request('/api/task/' + task._id, 'PUT').then(function (response) {
+						console.log(">>> " + response);
+						return Promise.resolve();
+					}.bind(this));
 				};
 				return React.createElement(
 					'div',
@@ -83,6 +94,10 @@ var TodoList = function (_React$Component) {
 
 			var onAddTaskButtonClick = function onAddTaskButtonClick(event) {
 				console.log("add task");
+				HttpRequest.request('/api/tasks/', 'POST').then(function (response) {
+					console.log(">>> " + response);
+					return Promise.resolve();
+				}.bind(this));
 			};
 			var addTaskButton = React.createElement('input', { type: 'button', onClick: onAddTaskButtonClick, value: '+' });
 

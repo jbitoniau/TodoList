@@ -38,43 +38,38 @@ TodoListServer.prototype.start = function() {
     app.use(express.static('Client'));
 
     // http://expressjs.com/en/guide/routing.html
+    // https://scotch.io/tutorials/build-a-restful-api-using-node-and-express-4
     app
-        .route('/api/task')
+        .route('/api/tasks')
         .get(function(req, res) {
-            res.send('Get a random task');
+            console.log('Get all tasks...');
+            //res.send('Get all tasks...');
+            var query = Task.find({});
+            var promise = query.exec();
+            promise.then(function(tasks) {
+                res.json(tasks);
+                return Promise.resolve();
+            });
         })
         .post(function(req, res) {
-            res.send('Add a task');
-        })
-        .put(function(req, res) {
-            res.send('Update the task');
+            console.log('Create a task');
+            res.send('Create a task');
         });
 
-    app.get('/api/tasks', function(req, res) {
-        var query = Task.find(
-            {},
-            null,
-            {
-                /*skip: 10*/
-            }
-        );
-        var promise = query.exec();
-        promise.then(function(docs) {
-            res.json(docs);
-            return Promise.resolve();
+    app
+        .route('/api/task/:id')
+        // .get(function(req, res) {
+        //     console.log('Get the task'  + req.params.id);
+        //     res.send('Get the task'  + req.params.id);
+        // })
+        .put(function(req, res) {
+            console.log('Update the task'  + req.params.id);
+            res.send('Update the task'  + req.params.id);
+        })
+        .delete(function(req, res) {
+            console.log('Delete the task ' + req.params.id);
+            res.send('Delete the task ' + req.params.id);
         });
-        // var tasks = [
-        //     {
-        //         name: 'first task',
-        //         complete: false
-        //     },
-        //     {
-        //         name: 'second task',
-        //         complete: true
-        //     }
-        // ];
-        // res.json(tasks);
-    });
 
     app.use(function(err, req, res, next) {
         console.error(err.stack);
