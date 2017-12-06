@@ -16,17 +16,22 @@ var TodoList = function (_React$Component) {
 
 		var _this = _possibleConstructorReturn(this, (TodoList.__proto__ || Object.getPrototypeOf(TodoList)).call(this, props));
 
-		_this.state = { date: new Date() };
+		_this.state = { date: new Date(), tasks: [] };
+
+		HttpRequest.request('/api/tasks', 'GET').then(function (response) {
+			var tasks = JSON.parse(response);
+			this.setState({ tasks: tasks });
+		}.bind(_this));
 		return _this;
 	}
 
 	_createClass(TodoList, [{
-		key: "componentWillMount",
+		key: 'componentWillMount',
 		value: function componentWillMount() {
-			console.log("componentWillMount");
+			console.log('componentWillMount');
 		}
 	}, {
-		key: "componentDidMount",
+		key: 'componentDidMount',
 		value: function componentDidMount() {
 			var _this2 = this;
 
@@ -36,28 +41,38 @@ var TodoList = function (_React$Component) {
 			}, 1000);
 		}
 	}, {
-		key: "componentWillUnmount",
+		key: 'componentWillUnmount',
 		value: function componentWillUnmount() {
 			clearInterval(this.interval);
 		}
 	}, {
-		key: "componentWillReceiveProps",
+		key: 'componentWillReceiveProps',
 		value: function componentWillReceiveProps(nextProps) {
-			console.log("componentWillReceiveProps");
+			console.log('componentWillReceiveProps');
 		}
 	}, {
-		key: "tick",
+		key: 'tick',
 		value: function tick() {
 			this.setState({ date: new Date() });
 		}
 	}, {
-		key: "render",
+		key: 'render',
 		value: function render() {
-			var text = "Hello " + this.state.date.toString();
+			var text = 'Hello ' + this.state.date.toString();
+			var tasks = this.state.tasks.map(function (task, index) {
+				return React.createElement(
+					'div',
+					{ key: index },
+					index,
+					' - ',
+					task.name
+				);
+			});
 			return React.createElement(
-				"div",
+				'div',
 				null,
-				text
+				text,
+				tasks
 			);
 		}
 	}]);

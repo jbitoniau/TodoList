@@ -3,36 +3,46 @@
 class TodoList extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { date:new Date() };
+		this.state = { date: new Date(), tasks: [] };
+
+		HttpRequest.request('/api/tasks', 'GET').then(
+			function(response) {
+				var tasks = JSON.parse(response);
+				this.setState({ tasks: tasks });
+			}.bind(this)
+		);
 	}
 
 	componentWillMount() {
-		console.log("componentWillMount");
+		console.log('componentWillMount');
 	}
 
 	componentDidMount() {
 		//this.interval = setInterval( this.tick, 1000 );
-		 this.interval = setInterval(
-	      () => this.tick(),
-	      1000
-	    );
+		this.interval = setInterval(() => this.tick(), 1000);
 	}
 
 	componentWillUnmount() {
-		clearInterval( this.interval );
-  	}
-
-  	componentWillReceiveProps(nextProps) {
-		console.log("componentWillReceiveProps");
+		clearInterval(this.interval);
 	}
 
-  	tick() {
-  		this.setState( { date:new Date() } );
-  	}
+	componentWillReceiveProps(nextProps) {
+		console.log('componentWillReceiveProps');
+	}
+
+	tick() {
+		this.setState({ date: new Date() });
+	}
 
 	render() {
-		var text = "Hello " + this.state.date.toString();
-		return <div>{text}</div>;
+		var text = 'Hello ' + this.state.date.toString();
+		var tasks = this.state.tasks.map( function(task, index) {
+			return <div key={index}>{index} - {task.name}</div>
+		});
+		return <div>
+			{text}
+			{tasks}
+		</div>;
 	}
 }
 

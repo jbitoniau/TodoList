@@ -4,7 +4,9 @@ var express = require('express');
 var path = require('path');
 // var mongoose = require('mongoose');
 
-function TodoListServer() {}
+function TodoListServer() {
+    this._server = null;
+}
 
 TodoListServer.prototype.start = function() {
     var app = express();
@@ -29,6 +31,18 @@ TodoListServer.prototype.start = function() {
             res.send('Update the task');
         });
 
+    app.get('/api/tasks', function(req, res) {
+        var tasks = [
+            {
+                name: 'first task'
+            },
+            {
+                name: 'second task'
+            }
+        ];
+        res.json(tasks);
+    });
+
     app.use(function(err, req, res, next) {
         console.error(err.stack);
         res.status(500).send('Something broke!');
@@ -38,11 +52,12 @@ TodoListServer.prototype.start = function() {
         res.status(404).send("Sorry can't find that!");
     });
 
-    app.listen(8000);
+    this._server = app.listen(8000);
 };
 
 TodoListServer.prototype.stop = function() {
-    console.log("TodoListServer.prototype.stop to implement");
+    console.log('Stopping server...');
+    this._server.close();
 };
 
 function Main() {
